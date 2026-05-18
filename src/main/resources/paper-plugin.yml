@@ -6,6 +6,7 @@ load: POSTWORLD
 authors: [VoChiDanh]
 description: Packet-only SAO-style floating menus for Paper and Folia.
 folia-supported: true
+website: https://sincerpg.github.io/SinceMenu/
 dependencies:
   server:
     packetevents:
