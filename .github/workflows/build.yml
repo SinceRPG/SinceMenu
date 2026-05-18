@@ -1,5 +1,5 @@
 # FILE PATH: .github/workflows/build.yml
-name: SinceBooster CI/CD
+name: SinceMenu CI/CD
 
 # Trigger the workflow on push to any branch
 on:
@@ -19,7 +19,7 @@ env:
   # Bot Identity & Assets
   ICON_URL: "https://gitlab.com/uploads/-/system/group/avatar/121690756/SinceRPG.png?width=48"
   THUMBNAIL_URL: "https://gitlab.com/uploads/-/system/group/avatar/121690756/SinceRPG.png?width=48"
-  BOT_USERNAME: "SinceBooster Build"
+  BOT_USERNAME: "SinceMenu Build"
 
   # Embed Colors (Decimal format)
   COLOR_PENDING: "16766720" # Yellow
@@ -66,7 +66,7 @@ jobs:
 
           # CREATE PENDING MESSAGE
           jq -n \
-            --arg author "$AUTHOR triggered a build for SinceBooster" \
+            --arg author "$AUTHOR triggered a build for SinceMenu" \
             --arg desc "$COMMIT_MSG" \
             --arg footer "Version $VERSION • $HASH" \
             --arg timestamp "$TIMESTAMP" \
@@ -120,7 +120,7 @@ jobs:
           # EDIT MESSAGE ON SUCCESS
           if [ -n "$MSG_ID" ]; then
             jq -n \
-              --arg author "$AUTHOR pushed an update for SinceBooster" \
+              --arg author "$AUTHOR pushed an update for SinceMenu" \
               --arg desc "$COMMIT_MSG" \
               --arg footer "Version $VERSION • $HASH" \
               --arg timestamp "$TIMESTAMP" \
@@ -188,6 +188,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SinceBooster-Build
+          name: SinceMenu-Build
           path: build/libs/*.jar
           retention-days: 7
