@@ -1,0 +1,143 @@
+title: "Advanced SAO Menu"
+commands:
+  - advancedmenu
+  - saomenu
+permission: sincemenu.menu.advanced_menu
+permission-message: "<red>You do not have permission to open the advanced menu."
+refresh-rate: 20
+follow-player: true
+follow-rate: 2
+follow-distance-threshold: 0.35
+follow-angle-threshold: 12.0
+pinned-return-distance: 10.0
+drop-key-toggle-pin: true
+close-on-swap-hand: true
+hitbox-width: 0.8
+hitbox-height: 0.6
+pages: 2
+
+items:
+  welcome:
+    type: TEXT
+    page: 1
+    text: "<aqua>Welcome, %player_name%"
+    background-color: 0xAA001B2E
+    billboard: CENTER
+    offset-x: 0.0
+    offset-y: 1.05
+    offset-z: 2.65
+    view-requirements:
+      - "permission:sincemenu.open"
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>This text display is packet-only."
+
+  mmo_blade:
+    type: ITEM
+    page: 1
+    icon: "mmoitems:SWORD:CUTLASS"
+    fallback-icon: "minecraft:diamond_sword"
+    offset-x: -0.55
+    offset-y: 0.42
+    offset-z: 2.45
+    view-requirements:
+      - "permission:sincemenu.open"
+    clicks:
+      LEFT:
+        actions:
+          - action: "[message] <gold>You clicked an MMOItems icon."
+            requirements:
+              - "money:100"
+      RIGHT:
+        actions:
+          - "[next_page]"
+
+  vanilla_next:
+    type: TEXT
+    page: 1
+    text: "<yellow>Next Page >"
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: 0.75
+    offset-y: -0.2
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[next_page]"
+      SHIFT_LEFT:
+        actions:
+          - "[message] <yellow>Shift-left also works."
+      ANY:
+        actions:
+          - "[message] <gray>This runs only when no specific click action is configured."
+
+  close:
+    type: TEXT
+    page: 1
+    text: "<red>Close"
+    background-color: 0xAA2E0000
+    billboard: CENTER
+    offset-x: 0.0
+    offset-y: -0.55
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[close]"
+
+  ia_icon:
+    type: ITEM
+    page: 2
+    icon: "itemsadder:iasurvival:ruby"
+    fallback-icon: "minecraft:emerald"
+    offset-x: 0.0
+    offset-y: 0.55
+    offset-z: 2.5
+    view-requirements:
+      - "papi:%player_name%!=Notch"
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>ItemsAdder icon resolved safely."
+
+  nexo_icon:
+    type: ITEM
+    page: 2
+    icon: "nexo:example_item"
+    fallback-icon: "minecraft:amethyst_shard"
+    offset-x: 0.55
+    offset-y: 0.55
+    offset-z: 2.5
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>Nexo icon resolved safely."
+
+  crucible_icon:
+    type: ITEM
+    page: 2
+    icon: "mythiccrucible:my_crucible_itemid"
+    fallback-icon: "minecraft:nether_star"
+    offset-x: -0.55
+    offset-y: 0.55
+    offset-z: 2.5
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <light_purple>MythicCrucible icon resolved safely."
+
+  previous:
+    type: TEXT
+    page: 2
+    text: "<yellow>< Previous"
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: -0.75
+    offset-y: -0.2
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[previous_page]"

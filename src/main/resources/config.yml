@@ -1,0 +1,66 @@
+# Menu opened by /sincemenu open when no menu id is supplied.
+default-menu: advanced_menu
+
+# Fake packet entity ids start here to avoid colliding with normal server entities.
+entity-id-start: 9000000
+
+menu-defaults:
+  # Used when a menu does not define its own permission.
+  permission-pattern: "sincemenu.menu.{menu}"
+
+  # Used when a menu does not define its own permission-message.
+  permission-message: "<red>You do not have permission to open this menu."
+
+  # Placeholder and item metadata refresh interval in ticks.
+  refresh-rate: 20
+
+  # Press the drop key once to freeze the menu at its current position; press it again to follow normally.
+  # The drop packet is cancelled while a menu is open, so no item is dropped.
+  drop-key-toggle-pin: true
+
+  # A pure packet-only display cannot detect the Esc key because no vanilla gameplay packet is sent.
+  # The swap-hand key is F by default on vanilla clients and is cancelled while a menu is open.
+  close-on-swap-hand: true
+
+  # Invisible Interaction entities are spawned behind every visual item so clicks are reliable.
+  # Increase these values for larger, easier buttons; decrease them for tighter hitboxes.
+  hitbox-width: 0.8
+  hitbox-height: 0.6
+
+  # How often SinceMenu checks whether a followed menu should move, in ticks.
+  # A lower value feels more responsive; thresholds below prevent constant teleport spam.
+  follow-rate: 2
+
+  # The menu only moves after the viewer moves this many blocks from the last menu anchor.
+  # Increase this if clicking feels unstable while walking.
+  follow-distance-threshold: 0.35
+
+  # The menu only moves after the viewer rotates this many degrees from the last menu anchor.
+  # Increase this if clicking feels unstable while looking around.
+  follow-angle-threshold: 12.0
+
+  # If the menu is pinned and the viewer walks farther than this many blocks from it,
+  # SinceMenu re-anchors the pinned menu in front of the viewer so it cannot be left behind.
+  pinned-return-distance: 10.0
+
+messages:
+  # MiniMessage format is supported in all messages below.
+  admin-help:
+    - "<gray>/sincemenu open <menu> [player]"
+    - "<gray>/sincemenu close"
+    - "<gray>/sincemenu reload"
+  reloaded: "<green>SinceMenu reloaded."
+  no-permission: "<red>You do not have permission."
+  players-only: "<red>Only players can open this menu."
+  unknown-menu: "<red>Unknown menu: <white>{menu}"
+  unknown-player: "<red>Unknown player: <white>{player}"
+  menu-pinned: "<gray>Menu pinned."
+  menu-unpinned: "<gray>Menu follow restored."
+
+command-descriptions:
+  # Description shown by the server command system for /sincemenu.
+  admin: "SinceMenu administration command."
+
+  # Description shown by the server command system for direct menu commands.
+  # {menu} is replaced with the menu file id.
+  menu: "Open menu {menu}."

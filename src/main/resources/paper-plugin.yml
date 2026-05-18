@@ -1,0 +1,40 @@
+name: SinceMenu
+version: '${version}'
+main: net.danh.sincemenu.SinceMenu
+api-version: '1.21'
+load: POSTWORLD
+authors: [VoChiDanh]
+description: Packet-only SAO-style floating menus for Paper and Folia.
+folia-supported: true
+dependencies:
+  server:
+    packetevents:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    MMOItems:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    ItemsAdder:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Nexo:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    MythicCrucible:
+      load: BEFORE
+      required: false
+      join-classpath: true
+
+permissions:
+  sincemenu.admin:
+    default: op
+  sincemenu.open:
+    default: true

@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest an improvement for SinceMenu.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow or limitation should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the desired behavior or API.
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Example config or API
+      description: Optional YAML or Java example.
+      render: yaml
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility notes
+      description: Mention Folia, Paper, PacketEvents, PlaceholderAPI, MMOItems, ItemsAdder, or other integration concerns.

@@ -1,0 +1,48 @@
+name: Bug report
+description: Report a reproducible SinceMenu bug.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps and commands.
+      placeholder: |
+        1. Install SinceMenu and PacketEvents
+        2. Run /sincemenu open advanced_menu
+        3. Click ...
+    validations:
+      required: true
+  - type: input
+    id: server
+    attributes:
+      label: Server software and version
+      placeholder: "Paper 1.21.11 build ..."
+    validations:
+      required: true
+  - type: input
+    id: sincemenu
+    attributes:
+      label: SinceMenu version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: plugins
+    attributes:
+      label: Related plugins
+      description: PacketEvents, PlaceholderAPI, MMOItems, ItemsAdder, economy plugin, etc.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste relevant console errors or attach a latest.log excerpt.
+      render: text
