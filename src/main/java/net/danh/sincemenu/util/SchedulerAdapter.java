@@ -21,6 +21,19 @@ public final class SchedulerAdapter {
         this.folia = hasMethod(Bukkit.class, "getRegionScheduler");
     }
 
+    private static @NotNull Consumer<Object> taskConsumer(@NotNull Runnable runnable) {
+        return ignored -> runnable.run();
+    }
+
+    private static boolean hasMethod(@NotNull Class<?> owner, @NotNull String name) {
+        for (Method method : owner.getMethods()) {
+            if (method.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isFolia() {
         return folia;
     }
@@ -103,19 +116,6 @@ public final class SchedulerAdapter {
         } catch (ReflectiveOperationException ex) {
             throw new IllegalStateException("Paper/Folia scheduler API is unavailable", ex);
         }
-    }
-
-    private static @NotNull Consumer<Object> taskConsumer(@NotNull Runnable runnable) {
-        return ignored -> runnable.run();
-    }
-
-    private static boolean hasMethod(@NotNull Class<?> owner, @NotNull String name) {
-        for (Method method : owner.getMethods()) {
-            if (method.getName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public interface Scheduled {

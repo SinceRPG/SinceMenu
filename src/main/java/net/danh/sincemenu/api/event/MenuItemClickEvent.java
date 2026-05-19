@@ -27,6 +27,10 @@ public final class MenuItemClickEvent extends PlayerEvent implements Cancellable
         this.clickType = clickType;
     }
 
+    public static @NotNull HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     public @NotNull MenuManager.MenuSession session() {
         return session;
     }
@@ -51,10 +55,6 @@ public final class MenuItemClickEvent extends PlayerEvent implements Cancellable
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

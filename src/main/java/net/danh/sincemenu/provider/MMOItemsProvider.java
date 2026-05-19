@@ -4,7 +4,6 @@ import net.danh.sincemenu.api.IconProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,34 +11,9 @@ import java.lang.reflect.Method;
 
 public final class MMOItemsProvider implements IconProvider {
 
-    @Override
-    public @NotNull String prefix() {
-        return "mmoitems";
-    }
-
-    @Override
-    public @Nullable ItemStack resolve(@NotNull Player viewer, @NotNull String icon) {
-        if (!Bukkit.getPluginManager().isPluginEnabled("MMOItems")) {
-            return null;
-        }
-        String[] parts = icon.split(":", 3);
-        if (parts.length != 3) {
-            return null;
-        }
-        try {
-            Class<?> mmoItemsClass = Class.forName("net.Indyuce.mmoitems.MMOItems");
-            Object plugin = invokeStatic(mmoItemsClass, "plugin");
-            if (plugin == null) {
-                Plugin bukkitPlugin = Bukkit.getPluginManager().getPlugin("MMOItems");
-                plugin = bukkitPlugin;
-            }
-            Method getItem = findMethod(plugin.getClass(), "getItem", String.class, String.class);
-            Object result = getItem.invoke(plugin, parts[1], parts[2]);
-            return result instanceof ItemStack itemStack ? itemStack : null;
-        } catch (Throwable ignored) {
-            return null;
-        }
-    }
+    private Object pluginInstance;
+    private Method getItemMethod;
+    private boolean initialized;
 
     private static @Nullable Object invokeStatic(@NotNull Class<?> owner, @NotNull String name) {
         try {
@@ -66,5 +40,37 @@ public final class MMOItemsProvider implements IconProvider {
             }
         }
         throw new NoSuchMethodException(name);
+    }
+
+    @Override
+    public @NotNull String prefix() {
+        return "mmoitems";
+    }
+
+    @Override
+    public @Nullable ItemStack resolve(@NotNull Player viewer, @NotNull String icon) {
+        if (!Bukkit.getPluginManager().isPluginEnabled("MMOItems")) {
+            return null;
+        }
+        String[] parts = icon.split(":", 3);
+        if (parts.length != 3) {
+            return null;
+        }
+        try {
+            if (!initialized) {
+                Class<?> mmoItemsClass = Class.forName("net.Indyuce.mmoitems.MMOItems");
+                pluginInstance = invokeStatic(mmoItemsClass, "plugin");
+                if (pluginInstance == null) {
+                    pluginInstance = Bukkit.getPluginManager().getPlugin("MMOItems");
+                }
+                getItemMethod = findMethod(pluginInstance.getClass(), "getItem", String.class, String.class);
+                initialized = true;
+            }
+            if (getItemMethod == null || pluginInstance == null) return null;
+            Object result = getItemMethod.invoke(pluginInstance, parts[1], parts[2]);
+            return result instanceof ItemStack itemStack ? itemStack : null;
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 }

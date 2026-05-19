@@ -11,6 +11,10 @@ import java.lang.reflect.Method;
 
 public final class ItemsAdderProvider implements IconProvider {
 
+    private Method getInstanceMethod;
+    private Method getItemStackMethod;
+    private boolean initialized;
+
     @Override
     public @NotNull String prefix() {
         return "itemsadder";
@@ -27,14 +31,16 @@ public final class ItemsAdderProvider implements IconProvider {
         }
         String namespacedId = parts[1] + ":" + parts[2];
         try {
-            Class<?> customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack");
-            Method getInstance = customStackClass.getMethod("getInstance", String.class);
-            Object customStack = getInstance.invoke(null, namespacedId);
-            if (customStack == null) {
-                return null;
+            if (!initialized) {
+                Class<?> customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack");
+                getInstanceMethod = customStackClass.getMethod("getInstance", String.class);
+                getItemStackMethod = customStackClass.getMethod("getItemStack");
+                initialized = true;
             }
-            Method getItemStack = customStack.getClass().getMethod("getItemStack");
-            Object result = getItemStack.invoke(customStack);
+            if (getInstanceMethod == null || getItemStackMethod == null) return null;
+            Object customStack = getInstanceMethod.invoke(null, namespacedId);
+            if (customStack == null) return null;
+            Object result = getItemStackMethod.invoke(customStack);
             return result instanceof ItemStack itemStack ? itemStack : null;
         } catch (Throwable ignored) {
             return null;

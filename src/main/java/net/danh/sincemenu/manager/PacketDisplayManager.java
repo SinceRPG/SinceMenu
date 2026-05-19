@@ -4,14 +4,10 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
-import com.github.retrooper.packetevents.util.Vector3f;
 import com.github.retrooper.packetevents.util.Vector3d;
+import com.github.retrooper.packetevents.util.Vector3f;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityTeleport;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerHeldItemChange;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
+import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.danh.sincemenu.SinceMenu;
 import net.danh.sincemenu.api.registry.IconProviderRegistry;
@@ -25,12 +21,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -68,7 +59,9 @@ public final class PacketDisplayManager {
     }
 
     public void spawnSession(@NotNull Player player, @NotNull MenuManager.MenuSession session) {
-        session.updateAnchor(player.getEyeLocation());
+        if (!session.hasAnchor()) {
+            session.updateAnchor(player.getEyeLocation());
+        }
         List<MenuManager.MenuLayer> layers = session.layers();
         for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++) {
             MenuManager.MenuLayer layer = layers.get(layerIndex);
@@ -130,14 +123,14 @@ public final class PacketDisplayManager {
                     new Vector3d(position.x(), position.y(), position.z()),
                     position.getYaw(),
                     position.getPitch(),
-                    player.isOnGround()
+                    false
             ));
             send(player, new WrapperPlayServerEntityTeleport(
                     renderedItem.interactionEntityId(),
                     new Vector3d(hitboxPosition.x(), hitboxPosition.y(), hitboxPosition.z()),
                     hitboxPosition.getYaw(),
                     hitboxPosition.getPitch(),
-                    player.isOnGround()
+                    false
             ));
         }
     }
@@ -186,7 +179,7 @@ public final class PacketDisplayManager {
                     new Vector3d(position.x(), position.y(), position.z()),
                     position.getYaw(),
                     position.getPitch(),
-                    player.isOnGround()
+                    false
             ));
             return;
         }
@@ -278,6 +271,7 @@ public final class PacketDisplayManager {
             Component component = menuManager.miniMessage().deserialize(placeholders.resolve(player, item.text()));
             metadata.add(new EntityData<>(TEXT_OR_ITEM_INDEX, EntityDataTypes.ADV_COMPONENT, component));
             metadata.add(new EntityData<>(TEXT_BACKGROUND_INDEX, EntityDataTypes.INT, item.backgroundColor()));
+            metadata.add(new EntityData<>(27, EntityDataTypes.BYTE, (byte) 0x01));
         }
         return new WrapperPlayServerEntityMetadata(entityId, metadata);
     }
@@ -299,6 +293,7 @@ public final class PacketDisplayManager {
         Component component = menuManager.miniMessage().deserialize(placeholders.resolve(player, joinedLore));
         metadata.add(new EntityData<>(TEXT_OR_ITEM_INDEX, EntityDataTypes.ADV_COMPONENT, component));
         metadata.add(new EntityData<>(TEXT_BACKGROUND_INDEX, EntityDataTypes.INT, menu.loreBackgroundColor()));
+        metadata.add(new EntityData<>(27, EntityDataTypes.BYTE, (byte) 0x03));
         return new WrapperPlayServerEntityMetadata(entityId, metadata);
     }
 
@@ -321,8 +316,8 @@ public final class PacketDisplayManager {
             int layerIndex,
             @NotNull MenuManager.MenuItem item
     ) {
-        Location eye = player.getEyeLocation();
-        Vector forward = eye.getDirection().normalize();
+        Location anchor = session.hasAnchor() ? session.getAnchorLocation(player.getWorld()) : player.getEyeLocation();
+        Vector forward = anchor.getDirection().normalize();
         Vector right = forward.clone().crossProduct(new Vector(0, 1, 0)).normalize().multiply(-1.0D);
         if (!isFinite(right)) {
             right = new Vector(1, 0, 0);
@@ -336,7 +331,7 @@ public final class PacketDisplayManager {
         Vector offset = right.multiply(item.offsetX() + cascadeOffset)
                 .add(up.multiply(itemOffsetY))
                 .add(forward.multiply(item.offsetZ()));
-        return eye.add(offset);
+        return anchor.add(offset);
     }
 
     private @NotNull Location calculateLorePosition(
@@ -346,8 +341,8 @@ public final class PacketDisplayManager {
             int layerIndex,
             @NotNull MenuManager.MenuItem item
     ) {
-        Location eye = player.getEyeLocation();
-        Vector forward = eye.getDirection().normalize();
+        Location anchor = session.hasAnchor() ? session.getAnchorLocation(player.getWorld()) : player.getEyeLocation();
+        Vector forward = anchor.getDirection().normalize();
         Vector right = forward.clone().crossProduct(new Vector(0, 1, 0)).normalize().multiply(-1.0D);
         if (!isFinite(right)) {
             right = new Vector(1, 0, 0);
@@ -356,7 +351,7 @@ public final class PacketDisplayManager {
         Location itemPosition = calculatePosition(player, session, layer, layerIndex, item);
         Vector offset = right.multiply(layer.menu().loreOffsetX())
                 .add(up.multiply(layer.menu().loreOffsetY()))
-                .add(forward.multiply(layer.menu().loreOffsetZ()));
+                .add(forward.multiply(-layer.menu().loreOffsetZ()));
         return itemPosition.add(offset);
     }
 

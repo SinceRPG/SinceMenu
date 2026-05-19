@@ -1,5 +1,5 @@
 title: "SAO Test Submenu"
-commands: []
+commands: [ ]
 permission: sincemenu.menu.sao_test_menu
 permission-message: "<red>You do not have permission to open the SAO test submenu."
 refresh-rate: 20

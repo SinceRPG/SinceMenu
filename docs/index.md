@@ -2,7 +2,8 @@
 
 SinceMenu is a packet-only floating menu plugin for modern Paper and Folia servers.
 
-It renders fake `TextDisplay`, `ItemDisplay`, and invisible `Interaction` entities per viewer with PacketEvents. Menus are lightweight and do not create persistent Bukkit entities.
+It renders fake `TextDisplay`, `ItemDisplay`, and invisible `Interaction` entities per viewer with PacketEvents. Menus
+are lightweight and do not create persistent Bukkit entities.
 
 ## Pages
 

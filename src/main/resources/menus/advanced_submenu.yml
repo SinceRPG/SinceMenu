@@ -1,5 +1,5 @@
 title: "Advanced SAO Submenu"
-commands: []
+commands: [ ]
 permission: sincemenu.menu.advanced_menu
 permission-message: "<red>You do not have permission to open this submenu."
 refresh-rate: 20

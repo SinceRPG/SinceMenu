@@ -14,6 +14,10 @@ public final class RequirementRegistry {
 
     private final Map<String, Requirement> requirements = new ConcurrentHashMap<>();
 
+    private static @NotNull String normalize(@NotNull String key) {
+        return key.trim().toLowerCase(Locale.ROOT);
+    }
+
     public void register(@NotNull String key, @NotNull Requirement requirement) {
         requirements.put(normalize(key), requirement);
     }
@@ -45,9 +49,5 @@ public final class RequirementRegistry {
 
     public @NotNull Map<String, Requirement> snapshot() {
         return Collections.unmodifiableMap(Map.copyOf(requirements));
-    }
-
-    private static @NotNull String normalize(@NotNull String key) {
-        return key.trim().toLowerCase(Locale.ROOT);
     }
 }

@@ -20,6 +20,10 @@ public final class MenuOpenEvent extends PlayerEvent implements Cancellable {
         this.page = page;
     }
 
+    public static @NotNull HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     public @NotNull MenuManager.MenuDefinition menu() {
         return menu;
     }
@@ -40,10 +44,6 @@ public final class MenuOpenEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

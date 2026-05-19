@@ -16,16 +16,16 @@ public final class MenuCloseEvent extends PlayerEvent {
         this.session = session;
     }
 
+    public static @NotNull HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     public @NotNull MenuManager.MenuSession session() {
         return session;
     }
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

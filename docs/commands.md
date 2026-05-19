@@ -3,20 +3,20 @@
 ## Admin Commands
 
 - `/sincemenu`
-  - Permission: `sincemenu.admin`
-  - Shows command help.
+    - Permission: `sincemenu.admin`
+    - Shows command help.
 
 - `/sincemenu reload`
-  - Permission: `sincemenu.admin`
-  - Reloads `config.yml`, menu files, and runtime menu commands.
+    - Permission: `sincemenu.admin`
+    - Reloads `config.yml`, menu files, and runtime menu commands.
 
 - `/sincemenu open [menu] [player]`
-  - Permission: `sincemenu.admin`
-  - Opens a menu for yourself or another player.
+    - Permission: `sincemenu.admin`
+    - Opens a menu for yourself or another player.
 
 - `/sincemenu close`
-  - Permission: `sincemenu.admin`
-  - Closes your current packet menu.
+    - Permission: `sincemenu.admin`
+    - Closes your current packet menu.
 
 ## Direct Menu Commands
 
@@ -29,4 +29,5 @@ commands:
 permission: sincemenu.menu.advanced_menu
 ```
 
-Direct menu commands are refreshed by `/sincemenu reload`. A server restart is not required after adding or removing a menu command.
+Direct menu commands are refreshed by `/sincemenu reload`. A server restart is not required after adding or removing a
+menu command.

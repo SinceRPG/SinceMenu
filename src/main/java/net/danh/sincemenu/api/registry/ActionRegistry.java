@@ -13,6 +13,14 @@ public final class ActionRegistry {
 
     private final Map<String, Action> actions = new ConcurrentHashMap<>();
 
+    private static @NotNull String normalize(@NotNull String key) {
+        String clean = key.trim().toLowerCase(Locale.ROOT);
+        if (clean.startsWith("[") && clean.endsWith("]")) {
+            clean = clean.substring(1, clean.length() - 1);
+        }
+        return clean;
+    }
+
     public void register(@NotNull String key, @NotNull Action action) {
         actions.put(normalize(key), action);
     }
@@ -27,13 +35,5 @@ public final class ActionRegistry {
 
     public @NotNull Map<String, Action> snapshot() {
         return Collections.unmodifiableMap(Map.copyOf(actions));
-    }
-
-    private static @NotNull String normalize(@NotNull String key) {
-        String clean = key.trim().toLowerCase(Locale.ROOT);
-        if (clean.startsWith("[") && clean.endsWith("]")) {
-            clean = clean.substring(1, clean.length() - 1);
-        }
-        return clean;
     }
 }

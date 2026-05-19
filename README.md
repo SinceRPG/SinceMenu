@@ -1,6 +1,8 @@
 # SinceMenu
 
-SinceMenu is a packet-only SAO-style floating menu plugin for modern Paper and Folia servers. It renders fake `TextDisplay`, `ItemDisplay`, and invisible `Interaction` entities per viewer with PacketEvents, so menus are lightweight and do not create persistent Bukkit entities.
+SinceMenu is a packet-only SAO-style floating menu plugin for modern Paper and Folia servers. It renders fake
+`TextDisplay`, `ItemDisplay`, and invisible `Interaction` entities per viewer with PacketEvents, so menus are
+lightweight and do not create persistent Bukkit entities.
 
 ## Features
 

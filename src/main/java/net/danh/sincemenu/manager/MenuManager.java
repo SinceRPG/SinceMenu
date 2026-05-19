@@ -18,16 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class MenuManager {
@@ -51,6 +42,30 @@ public final class MenuManager {
         this.scheduler = scheduler;
         this.actionRegistry = actionRegistry;
         this.requirementRegistry = requirementRegistry;
+    }
+
+    private static @NotNull ParsedAction parseAction(@NotNull String raw) {
+        String trimmed = raw.trim();
+        if (trimmed.startsWith("[") && trimmed.contains("]")) {
+            int end = trimmed.indexOf(']');
+            return new ParsedAction(trimmed.substring(1, end), trimmed.substring(end + 1).trim());
+        }
+        int split = trimmed.indexOf(' ');
+        if (split == -1) {
+            return new ParsedAction(trimmed, "");
+        }
+        return new ParsedAction(trimmed.substring(0, split), trimmed.substring(split + 1).trim());
+    }
+
+    private static <E extends Enum<E>> @NotNull E parseEnum(@NotNull Class<E> type, @Nullable String raw, @NotNull E fallback) {
+        if (raw == null) {
+            return fallback;
+        }
+        try {
+            return Enum.valueOf(type, raw.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return fallback;
+        }
     }
 
     public void attachDisplayManager(@NotNull PacketDisplayManager displayManager) {
@@ -413,19 +428,6 @@ public final class MenuManager {
         action.execute(new Action.Context(player, session, item, parsed.argument(), this));
     }
 
-    private static @NotNull ParsedAction parseAction(@NotNull String raw) {
-        String trimmed = raw.trim();
-        if (trimmed.startsWith("[") && trimmed.contains("]")) {
-            int end = trimmed.indexOf(']');
-            return new ParsedAction(trimmed.substring(1, end), trimmed.substring(end + 1).trim());
-        }
-        int split = trimmed.indexOf(' ');
-        if (split == -1) {
-            return new ParsedAction(trimmed, "");
-        }
-        return new ParsedAction(trimmed.substring(0, split), trimmed.substring(split + 1).trim());
-    }
-
     private @NotNull MenuDefinition parseMenu(@NotNull String id, @NotNull YamlConfiguration config) {
         String title = config.getString("title", id);
         List<String> commands = config.getStringList("commands").stream()
@@ -653,19 +655,22 @@ public final class MenuManager {
         return List.copyOf(requirements);
     }
 
-    private static <E extends Enum<E>> @NotNull E parseEnum(@NotNull Class<E> type, @Nullable String raw, @NotNull E fallback) {
-        if (raw == null) {
-            return fallback;
-        }
-        try {
-            return Enum.valueOf(type, raw.trim().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ex) {
-            return fallback;
-        }
-    }
-
     public @NotNull MiniMessage miniMessage() {
         return miniMessage;
+    }
+
+    public enum DisplayType {
+        TEXT,
+        ITEM
+    }
+
+    public enum MenuClickType {
+        LEFT,
+        RIGHT,
+        SHIFT,
+        SHIFT_LEFT,
+        SHIFT_RIGHT,
+        ANY
     }
 
     private record ParsedAction(@NotNull String key, @NotNull String argument) {
@@ -969,6 +974,14 @@ public final class MenuManager {
             hasAnchor = true;
         }
 
+        public boolean hasAnchor() {
+            return hasAnchor;
+        }
+
+        public @NotNull Location getAnchorLocation(@NotNull org.bukkit.World world) {
+            return new Location(world, anchorX, anchorY, anchorZ, anchorYaw, anchorPitch);
+        }
+
         private double distanceSquared(@NotNull Location eye) {
             double dx = eye.getX() - anchorX;
             double dy = eye.getY() - anchorY;
@@ -1038,19 +1051,5 @@ public final class MenuManager {
             scrollIndex = next;
             return true;
         }
-    }
-
-    public enum DisplayType {
-        TEXT,
-        ITEM
-    }
-
-    public enum MenuClickType {
-        LEFT,
-        RIGHT,
-        SHIFT,
-        SHIFT_LEFT,
-        SHIFT_RIGHT,
-        ANY
     }
 }

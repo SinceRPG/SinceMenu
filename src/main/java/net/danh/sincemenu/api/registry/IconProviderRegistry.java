@@ -16,6 +16,15 @@ public final class IconProviderRegistry {
 
     private final Map<String, IconProvider> providers = new ConcurrentHashMap<>();
 
+    private static boolean isUsable(@Nullable ItemStack item) {
+        return item != null && item.getType() != Material.AIR && item.getType().isItem();
+    }
+
+    private static @NotNull String normalize(@NotNull String prefix) {
+        String clean = prefix.trim().toLowerCase(Locale.ROOT);
+        return clean.endsWith(":") ? clean.substring(0, clean.length() - 1) : clean;
+    }
+
     public void register(@NotNull IconProvider provider) {
         providers.put(normalize(provider.prefix()), provider);
     }
@@ -61,14 +70,5 @@ public final class IconProviderRegistry {
 
     public @NotNull Map<String, IconProvider> snapshot() {
         return Collections.unmodifiableMap(Map.copyOf(providers));
-    }
-
-    private static boolean isUsable(@Nullable ItemStack item) {
-        return item != null && item.getType() != Material.AIR && item.getType().isItem();
-    }
-
-    private static @NotNull String normalize(@NotNull String prefix) {
-        String clean = prefix.trim().toLowerCase(Locale.ROOT);
-        return clean.endsWith(":") ? clean.substring(0, clean.length() - 1) : clean;
     }
 }

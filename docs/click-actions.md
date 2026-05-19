@@ -16,13 +16,13 @@ Supported click sections:
 ## Built-In Requirements
 
 - `permission:sincemenu.open`
-  - Uses Bukkit permissions.
+    - Uses Bukkit permissions.
 
 - `money:100`
-  - Uses a Vault-style economy through reflection when available.
+    - Uses a Vault-style economy through reflection when available.
 
 - `papi:%player_level%>=10`
-  - Applies PlaceholderAPI first, then compares strings or numbers.
+    - Applies PlaceholderAPI first, then compares strings or numbers.
 
 ## Built-In Actions
 
