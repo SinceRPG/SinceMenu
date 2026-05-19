@@ -31,7 +31,14 @@ Supported click sections:
 - `[player_command] spawn`
 - `[next_page]`
 - `[previous_page]`
+- `[scroll_up]`
+- `[scroll_down]`
+- `[open_menu] menu_id`
+- `[back_menu]`
 - `[close]`
+- `[close_all]`
+
+`[close]` closes the active submenu layer first. It closes the whole menu only when the root layer is active.
 
 ## Per-Action Requirements
 

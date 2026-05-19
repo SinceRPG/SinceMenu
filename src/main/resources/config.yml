@@ -1,5 +1,5 @@
 # Menu opened by /sincemenu open when no menu id is supplied.
-default-menu: advanced_menu
+default-menu: sao_test_menu
 
 # Fake packet entity ids start here to avoid colliding with normal server entities.
 entity-id-start: 9000000
@@ -39,9 +39,38 @@ menu-defaults:
   # Increase this if clicking feels unstable while looking around.
   follow-angle-threshold: 12.0
 
+  # When false, a standing player can look around without dragging open menu panels.
+  # Movement still re-anchors the menu when follow-player is enabled.
+  follow-rotation: false
+
   # If the menu is pinned and the viewer walks farther than this many blocks from it,
   # SinceMenu re-anchors the pinned menu in front of the viewer so it cannot be left behind.
   pinned-return-distance: 10.0
+
+  # Mouse wheel and [scroll_up]/[scroll_down] move through this many visible scrollable items.
+  # Set to 0 to render every item on the page without viewport clipping.
+  scroll-visible-items: 6
+
+  # The first scrollable item starts here, then each next visible item moves downward by the spacing below.
+  scroll-start-y: 0.75
+  scroll-item-spacing: 0.35
+
+  # Each submenu layer is shifted left by this many blocks, matching the SAO-style cascading layout.
+  submenu-shift-x: 1.35
+
+  # Shows an item's lore beside the hovered item while the player looks at it.
+  hover-lore: true
+  hover-rate: 2
+  hover-max-distance: 3.5
+  lore-offset-x: 0.95
+  lore-offset-y: 0.1
+  lore-offset-z: 0.05
+  lore-background-color: 0xAA001B2E
+
+  # Display entity scale. Item displays must be much smaller than their default one-block size.
+  item-scale: 0.28
+  text-scale: 0.55
+  lore-scale: 0.42
 
 messages:
   # MiniMessage format is supported in all messages below.

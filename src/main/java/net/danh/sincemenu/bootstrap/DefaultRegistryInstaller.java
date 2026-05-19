@@ -72,9 +72,14 @@ public final class DefaultRegistryInstaller {
     }
 
     private void installActions() {
-        actions.register("close", context -> menuManager.closeMenu(context.player()));
+        actions.register("close", context -> menuManager.backMenu(context.player(), context.session()));
+        actions.register("close_all", context -> menuManager.closeMenu(context.player()));
         actions.register("next_page", context -> menuManager.nextPage(context.player(), context.session()));
         actions.register("previous_page", context -> menuManager.previousPage(context.player(), context.session()));
+        actions.register("scroll_up", context -> menuManager.scrollUp(context.player(), context.session()));
+        actions.register("scroll_down", context -> menuManager.scrollDown(context.player(), context.session()));
+        actions.register("open_menu", context -> menuManager.openSubMenu(context.player(), context.argument()));
+        actions.register("back_menu", context -> menuManager.backMenu(context.player(), context.session()));
         actions.register("message", context -> context.player().sendMessage(miniMessage.deserialize(context.argument())));
         actions.register("command", context -> {
             String command = context.argument().replace("%player_name%", context.player().getName());

@@ -1,0 +1,355 @@
+title: "SAO Test Menu"
+commands:
+  - saotest
+  - menutest
+permission: sincemenu.menu.sao_test_menu
+permission-message: "<red>You do not have permission to open the SAO test menu."
+refresh-rate: 20
+follow-player: true
+follow-rate: 2
+follow-distance-threshold: 0.35
+follow-angle-threshold: 12.0
+follow-rotation: false
+pinned-return-distance: 10.0
+scroll-visible-items: 5
+scroll-start-y: 0.62
+scroll-item-spacing: 0.32
+submenu-shift-x: 1.75
+hover-lore: true
+hover-rate: 2
+hover-max-distance: 3.5
+lore-offset-x: 0.88
+lore-offset-y: 0.08
+lore-offset-z: 0.04
+lore-background-color: 0xCC001B2E
+item-scale: 0.22
+text-scale: 0.5
+lore-scale: 0.36
+drop-key-toggle-pin: true
+close-on-swap-hand: true
+hitbox-width: 0.78
+hitbox-height: 0.28
+pages: 2
+
+items:
+  frame_title:
+    type: TEXT
+    page: 1
+    text: "<aqua>SAO TEST"
+    scrollable: false
+    background-color: 0xAA001B2E
+    billboard: CENTER
+    hitbox-width: 0.05
+    hitbox-height: 0.05
+    offset-x: 0.0
+    offset-y: 1.02
+    offset-z: 2.5
+
+  frame_hint:
+    type: TEXT
+    page: 1
+    text: "<gray>Mouse wheel scrolls the item list"
+    scrollable: false
+    background-color: 0x66000000
+    billboard: CENTER
+    hitbox-width: 0.05
+    hitbox-height: 0.05
+    offset-x: 0.0
+    offset-y: 0.86
+    offset-z: 2.5
+
+  profile:
+    type: ITEM
+    page: 1
+    icon: "minecraft:player_head"
+    fallback-icon: "minecraft:player_head"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<aqua>Profile"
+      - "<gray>Hover lore is rendered with a packet text display."
+      - "<yellow>Left click sends a message."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>Profile selected."
+
+  inventory:
+    type: ITEM
+    page: 1
+    icon: "minecraft:chest"
+    fallback-icon: "minecraft:chest"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<gold>Inventory"
+      - "<gray>Right click opens a submenu layer."
+      - "<gray>The parent frame shifts left and stays clickable."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <gold>Inventory selected."
+      RIGHT:
+        actions:
+          - "[open_menu] sao_test_submenu"
+
+  skills:
+    type: ITEM
+    page: 1
+    icon: "minecraft:iron_sword"
+    fallback-icon: "minecraft:iron_sword"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<red>Skills"
+      - "<gray>Opens the same submenu for stack testing."
+    clicks:
+      LEFT:
+        actions:
+          - "[open_menu] sao_test_submenu"
+
+  party:
+    type: ITEM
+    page: 1
+    icon: "minecraft:totem_of_undying"
+    fallback-icon: "minecraft:totem_of_undying"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<green>Party"
+      - "<gray>Demonstrates a normal message action."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Party selected."
+
+  quests:
+    type: ITEM
+    page: 1
+    icon: "minecraft:book"
+    fallback-icon: "minecraft:book"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<yellow>Quests"
+      - "<gray>Scrollable item 5."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <yellow>Quest log selected."
+
+  map:
+    type: ITEM
+    page: 1
+    icon: "minecraft:filled_map"
+    fallback-icon: "minecraft:map"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<green>Map"
+      - "<gray>This item appears after scrolling down."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Map selected after scroll."
+
+  settings:
+    type: ITEM
+    page: 1
+    icon: "minecraft:comparator"
+    fallback-icon: "minecraft:comparator"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<aqua>Settings"
+      - "<gray>Another scroll target."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>Settings selected."
+
+  economy:
+    type: ITEM
+    page: 1
+    icon: "minecraft:emerald"
+    fallback-icon: "minecraft:emerald"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<green>Economy Requirement"
+      - "<gray>Left click requires money:100."
+    clicks:
+      LEFT:
+        actions:
+          - action: "[message] <green>Money requirement passed."
+            requirements:
+              - "money:100"
+
+  console_command:
+    type: ITEM
+    page: 1
+    icon: "minecraft:command_block"
+    fallback-icon: "minecraft:redstone"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<red>Console Command"
+      - "<gray>Runs a harmless console say command."
+    clicks:
+      LEFT:
+        actions:
+          - "[command] say SinceMenu console command test for %player_name%"
+
+  player_command:
+    type: ITEM
+    page: 1
+    icon: "minecraft:compass"
+    fallback-icon: "minecraft:compass"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<yellow>Player Command"
+      - "<gray>Runs /help as the player."
+    clicks:
+      LEFT:
+        actions:
+          - "[player_command] help"
+
+  scroll_up:
+    type: TEXT
+    page: 1
+    text: "<aqua>Up"
+    scrollable: false
+    background-color: 0x99001830
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: 0.55
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    lore:
+      - "<aqua>Scroll Up"
+      - "<gray>Also works with mouse wheel."
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_up]"
+
+  scroll_down:
+    type: TEXT
+    page: 1
+    text: "<aqua>Down"
+    scrollable: false
+    background-color: 0x99001830
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: 0.18
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    lore:
+      - "<aqua>Scroll Down"
+      - "<gray>Also works with mouse wheel."
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_down]"
+
+  next_page:
+    type: TEXT
+    page: 1
+    text: "<yellow>Page 2"
+    scrollable: false
+    background-color: 0x99705000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.2
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[next_page]"
+
+  close:
+    type: TEXT
+    page: 1
+    text: "<red>Close"
+    scrollable: false
+    background-color: 0xAA2E0000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.58
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[close]"
+
+  page_two_title:
+    type: TEXT
+    page: 2
+    text: "<aqua>PAGE TWO"
+    scrollable: false
+    background-color: 0xAA001B2E
+    billboard: CENTER
+    hitbox-width: 0.05
+    hitbox-height: 0.05
+    offset-x: 0.0
+    offset-y: 0.9
+    offset-z: 2.5
+
+  page_two_message:
+    type: TEXT
+    page: 2
+    text: "<green>Page navigation works"
+    scrollable: false
+    background-color: 0x88001818
+    billboard: CENTER
+    offset-x: 0.0
+    offset-y: 0.35
+    offset-z: 2.45
+    lore:
+      - "<green>Page Two"
+      - "<gray>Use Previous to return."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Page two click works."
+
+  previous_page:
+    type: TEXT
+    page: 2
+    text: "<yellow>Previous"
+    scrollable: false
+    background-color: 0x99705000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.2
+    offset-z: 2.35
+    hitbox-width: 0.55
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[previous_page]"
+
+  close_page_two:
+    type: TEXT
+    page: 2
+    text: "<red>Close"
+    scrollable: false
+    background-color: 0xAA2E0000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.58
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[close]"

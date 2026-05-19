@@ -102,6 +102,7 @@ public final class MenuManager {
             }
             closeMenuInternal(player, false);
             MenuSession session = new MenuSession(player.getUniqueId(), menu, page, pinned);
+            session.setLastHeldSlot(player.getInventory().getHeldItemSlot());
             sessions.put(player.getUniqueId(), session);
             displayManager.spawnSession(player, session);
             if (menu.refreshRate() > 0) {
@@ -121,6 +122,15 @@ public final class MenuManager {
                         menu.followRate()
                 );
                 session.setMoveTask(task);
+            }
+            if (menu.hoverLore() && menu.hoverRate() > 0) {
+                SchedulerAdapter.Scheduled task = scheduler.runAtEntityTimer(
+                        player,
+                        () -> updateHover(player),
+                        menu.hoverRate(),
+                        menu.hoverRate()
+                );
+                session.setHoverTask(task);
             }
         });
         return true;
@@ -145,7 +155,7 @@ public final class MenuManager {
             if (player != null && displayManager != null) {
                 displayManager.destroySession(player, session);
             } else {
-                session.clearBindings();
+                clearPacketState(uuid, session);
             }
         }
     }
@@ -159,9 +169,18 @@ public final class MenuManager {
                 MenuSession session = sessions.remove(uuid);
                 if (session != null) {
                     session.cancelTasks();
+                    clearPacketState(uuid, session);
                 }
             }
         }
+    }
+
+    private void clearPacketState(@NotNull UUID uuid, @NotNull MenuSession session) {
+        if (displayManager != null) {
+            displayManager.clearSessionState(uuid, session);
+            return;
+        }
+        session.clearBindings();
     }
 
     public void refresh(@NotNull Player player) {
@@ -186,6 +205,18 @@ public final class MenuManager {
             return;
         }
         displayManager.moveSession(player, session);
+    }
+
+    public void updateHover(@NotNull Player player) {
+        MenuSession session = sessions.get(player.getUniqueId());
+        if (session == null || displayManager == null) {
+            return;
+        }
+        if (!player.isOnline()) {
+            cleanupPlayer(player);
+            return;
+        }
+        displayManager.updateHover(player, session);
     }
 
     public Optional<MenuSession> session(@NotNull Player player) {
@@ -225,8 +256,25 @@ public final class MenuManager {
     public void handleSwapClose(@NotNull Player player) {
         MenuSession session = sessions.get(player.getUniqueId());
         if (session != null && session.menu().closeOnSwapHand()) {
-            closeMenu(player);
+            backMenu(player, session);
         }
+    }
+
+    public void handleHotbarScroll(@NotNull Player player, int selectedSlot) {
+        scheduler.runAtEntity(player, () -> {
+            MenuSession session = sessions.get(player.getUniqueId());
+            if (session == null) {
+                return;
+            }
+            int direction = session.scrollDirection(selectedSlot);
+            if (direction != 0) {
+                scrollActiveLayer(player, session, direction);
+            }
+            session.setLastHeldSlot(player.getInventory().getHeldItemSlot());
+            if (displayManager != null) {
+                displayManager.syncHeldSlot(player, session);
+            }
+        });
     }
 
     public void handleClick(@NotNull Player player, int entityId, @NotNull MenuClickType clickType) {
@@ -270,7 +318,8 @@ public final class MenuManager {
         if (next > session.menu().pages()) {
             next = 1;
         }
-        openMenu(player, session.menu().id(), next, session.isPinned());
+        int nextPage = next;
+        scheduler.runAtEntity(player, () -> replaceActiveLayer(player, session, session.menu(), nextPage));
     }
 
     public void previousPage(@NotNull Player player, @NotNull MenuSession session) {
@@ -278,7 +327,67 @@ public final class MenuManager {
         if (previous < 1) {
             previous = session.menu().pages();
         }
-        openMenu(player, session.menu().id(), previous, session.isPinned());
+        int previousPage = previous;
+        scheduler.runAtEntity(player, () -> replaceActiveLayer(player, session, session.menu(), previousPage));
+    }
+
+    public void scrollUp(@NotNull Player player, @NotNull MenuSession session) {
+        scheduler.runAtEntity(player, () -> scrollActiveLayer(player, session, -1));
+    }
+
+    public void scrollDown(@NotNull Player player, @NotNull MenuSession session) {
+        scheduler.runAtEntity(player, () -> scrollActiveLayer(player, session, 1));
+    }
+
+    public void openSubMenu(@NotNull Player player, @NotNull String menuId) {
+        MenuDefinition menu = menus.get(menuId.toLowerCase(Locale.ROOT));
+        if (menu == null || displayManager == null) {
+            return;
+        }
+        scheduler.runAtEntity(player, () -> {
+            MenuSession session = sessions.get(player.getUniqueId());
+            if (session == null) {
+                openMenu(player, menu.id(), 1);
+                return;
+            }
+            session.pushLayer(menu, 1);
+            displayManager.respawnSession(player, session);
+        });
+    }
+
+    public void backMenu(@NotNull Player player, @NotNull MenuSession session) {
+        scheduler.runAtEntity(player, () -> {
+            if (session.layerCount() <= 1) {
+                closeMenuInternal(player, true);
+                return;
+            }
+            session.popLayer();
+            if (displayManager != null) {
+                displayManager.respawnSession(player, session);
+            }
+        });
+    }
+
+    private void replaceActiveLayer(
+            @NotNull Player player,
+            @NotNull MenuSession session,
+            @NotNull MenuDefinition menu,
+            int page
+    ) {
+        if (sessions.get(player.getUniqueId()) != session || displayManager == null) {
+            return;
+        }
+        session.replaceActiveLayer(menu, page);
+        displayManager.respawnSession(player, session);
+    }
+
+    private void scrollActiveLayer(@NotNull Player player, @NotNull MenuSession session, int direction) {
+        if (sessions.get(player.getUniqueId()) != session || displayManager == null || direction == 0) {
+            return;
+        }
+        if (session.scrollActiveLayer(direction)) {
+            displayManager.respawnSession(player, session);
+        }
     }
 
     private void closeMenuInternal(@NotNull Player player, boolean fireEvent) {
@@ -347,6 +456,66 @@ public final class MenuManager {
                 "pinned-return-distance",
                 plugin.getConfig().getDouble("menu-defaults.pinned-return-distance", 10.0D)
         ));
+        boolean followRotation = config.getBoolean(
+                "follow-rotation",
+                plugin.getConfig().getBoolean("menu-defaults.follow-rotation", false)
+        );
+        int scrollVisibleItems = Math.max(0, config.getInt(
+                "scroll-visible-items",
+                plugin.getConfig().getInt("menu-defaults.scroll-visible-items", 6)
+        ));
+        double scrollStartY = config.getDouble(
+                "scroll-start-y",
+                plugin.getConfig().getDouble("menu-defaults.scroll-start-y", 0.75D)
+        );
+        double scrollItemSpacing = Math.max(0.01D, config.getDouble(
+                "scroll-item-spacing",
+                plugin.getConfig().getDouble("menu-defaults.scroll-item-spacing", 0.35D)
+        ));
+        double submenuShiftX = config.getDouble(
+                "submenu-shift-x",
+                plugin.getConfig().getDouble("menu-defaults.submenu-shift-x", 1.35D)
+        );
+        boolean hoverLore = config.getBoolean(
+                "hover-lore",
+                plugin.getConfig().getBoolean("menu-defaults.hover-lore", true)
+        );
+        int hoverRate = Math.max(1, config.getInt(
+                "hover-rate",
+                plugin.getConfig().getInt("menu-defaults.hover-rate", 2)
+        ));
+        double loreOffsetX = config.getDouble(
+                "lore-offset-x",
+                plugin.getConfig().getDouble("menu-defaults.lore-offset-x", 0.95D)
+        );
+        double loreOffsetY = config.getDouble(
+                "lore-offset-y",
+                plugin.getConfig().getDouble("menu-defaults.lore-offset-y", 0.1D)
+        );
+        double loreOffsetZ = config.getDouble(
+                "lore-offset-z",
+                plugin.getConfig().getDouble("menu-defaults.lore-offset-z", 0.05D)
+        );
+        int loreBackgroundColor = (int) Long.decode(String.valueOf(config.get(
+                "lore-background-color",
+                plugin.getConfig().get("menu-defaults.lore-background-color", "0xAA001B2E")
+        ))).longValue();
+        double hoverMaxDistance = Math.max(0.1D, config.getDouble(
+                "hover-max-distance",
+                plugin.getConfig().getDouble("menu-defaults.hover-max-distance", 3.5D)
+        ));
+        double itemScale = Math.max(0.01D, config.getDouble(
+                "item-scale",
+                plugin.getConfig().getDouble("menu-defaults.item-scale", 0.28D)
+        ));
+        double textScale = Math.max(0.01D, config.getDouble(
+                "text-scale",
+                plugin.getConfig().getDouble("menu-defaults.text-scale", 0.55D)
+        ));
+        double loreScale = Math.max(0.01D, config.getDouble(
+                "lore-scale",
+                plugin.getConfig().getDouble("menu-defaults.lore-scale", 0.42D)
+        ));
         boolean dropKeyTogglePin = config.getBoolean("drop-key-toggle-pin", plugin.getConfig().getBoolean("menu-defaults.drop-key-toggle-pin", true));
         boolean closeOnSwapHand = config.getBoolean("close-on-swap-hand", plugin.getConfig().getBoolean("menu-defaults.close-on-swap-hand", true));
         double hitboxWidth = Math.max(0.1D, config.getDouble("hitbox-width", plugin.getConfig().getDouble("menu-defaults.hitbox-width", 1.6D)));
@@ -376,6 +545,21 @@ public final class MenuManager {
                 followDistanceThreshold,
                 followAngleThreshold,
                 pinnedReturnDistance,
+                followRotation,
+                scrollVisibleItems,
+                scrollStartY,
+                scrollItemSpacing,
+                submenuShiftX,
+                hoverLore,
+                hoverRate,
+                loreOffsetX,
+                loreOffsetY,
+                loreOffsetZ,
+                loreBackgroundColor,
+                hoverMaxDistance,
+                itemScale,
+                textScale,
+                loreScale,
                 dropKeyTogglePin,
                 closeOnSwapHand,
                 hitboxWidth,
@@ -396,6 +580,9 @@ public final class MenuManager {
         double offsetZ = section.getDouble("offset-z", 2.0D);
         double hitboxWidth = Math.max(0.0D, section.getDouble("hitbox-width", 0.0D));
         double hitboxHeight = Math.max(0.0D, section.getDouble("hitbox-height", 0.0D));
+        double scale = Math.max(0.0D, section.getDouble("scale", 0.0D));
+        boolean scrollable = section.getBoolean("scrollable", true);
+        List<String> lore = section.getStringList("lore");
         int backgroundColor = (int) Long.decode(String.valueOf(section.get("background-color", "0x00000000"))).longValue();
         String billboard = section.getString("billboard", "CENTER");
         List<String> viewRequirements = section.getStringList("view-requirements");
@@ -420,6 +607,9 @@ public final class MenuManager {
                 offsetZ,
                 hitboxWidth,
                 hitboxHeight,
+                scale,
+                scrollable,
+                List.copyOf(lore),
                 backgroundColor,
                 billboard,
                 List.copyOf(viewRequirements),
@@ -496,6 +686,21 @@ public final class MenuManager {
             double followDistanceThreshold,
             double followAngleThreshold,
             double pinnedReturnDistance,
+            boolean followRotation,
+            int scrollVisibleItems,
+            double scrollStartY,
+            double scrollItemSpacing,
+            double submenuShiftX,
+            boolean hoverLore,
+            int hoverRate,
+            double loreOffsetX,
+            double loreOffsetY,
+            double loreOffsetZ,
+            int loreBackgroundColor,
+            double hoverMaxDistance,
+            double itemScale,
+            double textScale,
+            double loreScale,
             boolean dropKeyTogglePin,
             boolean closeOnSwapHand,
             double hitboxWidth,
@@ -505,6 +710,37 @@ public final class MenuManager {
     ) {
         public @NotNull List<MenuItem> pageItems(int page) {
             return items.stream().filter(item -> item.page() == page).toList();
+        }
+
+        public @NotNull List<MenuItem> visibleItems(@NotNull MenuLayer layer) {
+            List<MenuItem> pageItems = pageItems(layer.page());
+            if (scrollVisibleItems <= 0) {
+                return pageItems;
+            }
+            List<MenuItem> fixed = pageItems.stream().filter(item -> !item.scrollable()).toList();
+            List<MenuItem> scrollable = pageItems.stream().filter(MenuItem::scrollable).toList();
+            int start = Math.max(0, Math.min(layer.scrollIndex(), maxScrollIndex(layer.page())));
+            int end = Math.min(scrollable.size(), start + scrollVisibleItems);
+            List<MenuItem> visible = new ArrayList<>(fixed.size() + Math.max(0, end - start));
+            visible.addAll(scrollable.subList(start, end));
+            visible.addAll(fixed);
+            return List.copyOf(visible);
+        }
+
+        public int visibleSlot(@NotNull MenuLayer layer, @NotNull MenuItem item) {
+            if (!item.scrollable() || scrollVisibleItems <= 0) {
+                return -1;
+            }
+            List<MenuItem> scrollable = pageItems(layer.page()).stream().filter(MenuItem::scrollable).toList();
+            return scrollable.indexOf(item) - layer.scrollIndex();
+        }
+
+        public int maxScrollIndex(int page) {
+            if (scrollVisibleItems <= 0) {
+                return 0;
+            }
+            int itemCount = (int) pageItems(page).stream().filter(MenuItem::scrollable).count();
+            return Math.max(0, itemCount - scrollVisibleItems);
         }
     }
 
@@ -520,6 +756,9 @@ public final class MenuManager {
             double offsetZ,
             double hitboxWidth,
             double hitboxHeight,
+            double scale,
+            boolean scrollable,
+            @NotNull List<String> lore,
             int backgroundColor,
             @NotNull String billboard,
             @NotNull List<String> viewRequirements,
@@ -549,14 +788,15 @@ public final class MenuManager {
     public static final class MenuSession {
 
         private final UUID playerId;
-        private final MenuDefinition menu;
-        private final int page;
+        private final List<MenuLayer> layers = new ArrayList<>();
         private final Map<Integer, MenuItem> displayItems = new ConcurrentHashMap<>();
         private final Map<Integer, MenuItem> clickItems = new ConcurrentHashMap<>();
         private final Map<String, RenderedItem> renderedItems = new ConcurrentHashMap<>();
         private volatile SchedulerAdapter.Scheduled refreshTask;
         private volatile SchedulerAdapter.Scheduled moveTask;
+        private volatile SchedulerAdapter.Scheduled hoverTask;
         private volatile boolean pinned;
+        private volatile int lastHeldSlot;
         private volatile double anchorX;
         private volatile double anchorY;
         private volatile double anchorZ;
@@ -566,9 +806,8 @@ public final class MenuManager {
 
         public MenuSession(@NotNull UUID playerId, @NotNull MenuDefinition menu, int page, boolean pinned) {
             this.playerId = playerId;
-            this.menu = menu;
-            this.page = page;
             this.pinned = pinned;
+            this.layers.add(new MenuLayer(menu, page));
         }
 
         public @NotNull UUID playerId() {
@@ -576,11 +815,45 @@ public final class MenuManager {
         }
 
         public @NotNull MenuDefinition menu() {
-            return menu;
+            return activeLayer().menu();
         }
 
         public int page() {
-            return page;
+            return activeLayer().page();
+        }
+
+        public @NotNull List<MenuLayer> layers() {
+            return List.copyOf(layers);
+        }
+
+        public int activeLayerIndex() {
+            return layers.size() - 1;
+        }
+
+        public int layerCount() {
+            return layers.size();
+        }
+
+        public @NotNull MenuLayer activeLayer() {
+            return layers.get(activeLayerIndex());
+        }
+
+        public void pushLayer(@NotNull MenuDefinition menu, int page) {
+            layers.add(new MenuLayer(menu, Math.max(1, Math.min(page, menu.pages()))));
+        }
+
+        public void replaceActiveLayer(@NotNull MenuDefinition menu, int page) {
+            layers.set(activeLayerIndex(), new MenuLayer(menu, Math.max(1, Math.min(page, menu.pages()))));
+        }
+
+        public void popLayer() {
+            if (layers.size() > 1) {
+                layers.remove(activeLayerIndex());
+            }
+        }
+
+        public boolean scrollActiveLayer(int direction) {
+            return activeLayer().scroll(direction);
         }
 
         public @NotNull Map<Integer, MenuItem> entityItems() {
@@ -596,19 +869,19 @@ public final class MenuManager {
         }
 
         public void bind(@NotNull RenderedItem renderedItem) {
-            renderedItems.put(renderedItem.item().id(), renderedItem);
+            renderedItems.put(renderKey(renderedItem.layerIndex(), renderedItem.item().id()), renderedItem);
             displayItems.put(renderedItem.displayEntityId(), renderedItem.item());
             clickItems.put(renderedItem.interactionEntityId(), renderedItem.item());
         }
 
         public void unbind(@NotNull RenderedItem renderedItem) {
-            renderedItems.remove(renderedItem.item().id());
+            renderedItems.remove(renderKey(renderedItem.layerIndex(), renderedItem.item().id()));
             displayItems.remove(renderedItem.displayEntityId());
             clickItems.remove(renderedItem.interactionEntityId());
         }
 
-        public @Nullable RenderedItem renderedItem(@NotNull String itemId) {
-            return renderedItems.get(itemId);
+        public @Nullable RenderedItem renderedItem(int layerIndex, @NotNull String itemId) {
+            return renderedItems.get(renderKey(layerIndex, itemId));
         }
 
         public void clearBindings() {
@@ -632,27 +905,59 @@ public final class MenuManager {
             if (movement != null) {
                 movement.cancel();
             }
+            SchedulerAdapter.Scheduled hover = hoverTask;
+            hoverTask = null;
+            if (hover != null) {
+                hover.cancel();
+            }
         }
 
         public void setMoveTask(@NotNull SchedulerAdapter.Scheduled moveTask) {
             this.moveTask = moveTask;
         }
 
+        public void setHoverTask(@NotNull SchedulerAdapter.Scheduled hoverTask) {
+            this.hoverTask = hoverTask;
+        }
+
+        public void setLastHeldSlot(int lastHeldSlot) {
+            this.lastHeldSlot = normalizeSlot(lastHeldSlot);
+        }
+
+        public int lastHeldSlot() {
+            return lastHeldSlot;
+        }
+
+        public int scrollDirection(int selectedSlot) {
+            int normalized = normalizeSlot(selectedSlot);
+            int previous = lastHeldSlot;
+            lastHeldSlot = normalized;
+            if (normalized == previous) {
+                return 0;
+            }
+            int forward = (normalized - previous + 9) % 9;
+            int backward = (previous - normalized + 9) % 9;
+            return forward <= backward ? 1 : -1;
+        }
+
         public boolean shouldMove(@NotNull Location eye) {
             double distanceSquared = distanceSquared(eye);
+            MenuDefinition activeMenu = menu();
             if (pinned) {
-                double returnDistance = menu.pinnedReturnDistance();
+                double returnDistance = activeMenu.pinnedReturnDistance();
                 return distanceSquared >= returnDistance * returnDistance;
             }
             if (!hasAnchor) {
                 return true;
             }
-            double threshold = menu.followDistanceThreshold();
+            double threshold = activeMenu.followDistanceThreshold();
             if (distanceSquared >= threshold * threshold) {
                 return true;
             }
-            return angleDelta(anchorYaw, eye.getYaw()) >= menu.followAngleThreshold()
-                    || angleDelta(anchorPitch, eye.getPitch()) >= menu.followAngleThreshold();
+            return activeMenu.followRotation() && (
+                    angleDelta(anchorYaw, eye.getYaw()) >= activeMenu.followAngleThreshold()
+                            || angleDelta(anchorPitch, eye.getPitch()) >= activeMenu.followAngleThreshold()
+            );
         }
 
         public void updateAnchor(@NotNull Location eye) {
@@ -676,6 +981,14 @@ public final class MenuManager {
             return delta > 180.0D ? 360.0D - delta : delta;
         }
 
+        private @NotNull String renderKey(int layerIndex, @NotNull String itemId) {
+            return layerIndex + ":" + itemId;
+        }
+
+        private int normalizeSlot(int slot) {
+            return Math.max(0, Math.min(8, slot));
+        }
+
         public boolean togglePinned() {
             pinned = !pinned;
             return pinned;
@@ -689,8 +1002,42 @@ public final class MenuManager {
     public record RenderedItem(
             int displayEntityId,
             int interactionEntityId,
+            int layerIndex,
             @NotNull MenuItem item
     ) {
+    }
+
+    public static final class MenuLayer {
+
+        private final MenuDefinition menu;
+        private final int page;
+        private int scrollIndex;
+
+        private MenuLayer(@NotNull MenuDefinition menu, int page) {
+            this.menu = menu;
+            this.page = page;
+        }
+
+        public @NotNull MenuDefinition menu() {
+            return menu;
+        }
+
+        public int page() {
+            return page;
+        }
+
+        public int scrollIndex() {
+            return scrollIndex;
+        }
+
+        private boolean scroll(int direction) {
+            int next = Math.max(0, Math.min(menu.maxScrollIndex(page), scrollIndex + direction));
+            if (next == scrollIndex) {
+                return false;
+            }
+            scrollIndex = next;
+            return true;
+        }
     }
 
     public enum DisplayType {

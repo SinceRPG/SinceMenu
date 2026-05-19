@@ -1,0 +1,104 @@
+title: "Advanced SAO Submenu"
+commands: []
+permission: sincemenu.menu.advanced_menu
+permission-message: "<red>You do not have permission to open this submenu."
+refresh-rate: 20
+follow-player: true
+follow-rate: 2
+follow-distance-threshold: 0.35
+follow-angle-threshold: 12.0
+follow-rotation: false
+pinned-return-distance: 10.0
+scroll-visible-items: 6
+scroll-start-y: 0.75
+scroll-item-spacing: 0.35
+submenu-shift-x: 1.35
+hover-lore: true
+hover-rate: 2
+hover-max-distance: 3.5
+lore-offset-x: 0.95
+lore-offset-y: 0.1
+lore-offset-z: 0.05
+lore-background-color: 0xAA001B2E
+drop-key-toggle-pin: true
+close-on-swap-hand: true
+hitbox-width: 0.8
+hitbox-height: 0.6
+pages: 1
+
+items:
+  submenu_title:
+    type: TEXT
+    page: 1
+    text: "<aqua>Submenu"
+    scrollable: false
+    background-color: 0xAA001B2E
+    billboard: CENTER
+    offset-x: 0.0
+    offset-y: 0.95
+    offset-z: 2.55
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>This submenu keeps the previous panel shifted left."
+
+  feature:
+    type: ITEM
+    page: 1
+    icon: "minecraft:nether_star"
+    fallback-icon: "minecraft:nether_star"
+    lore:
+      - "<green>Submenu Feature"
+      - "<gray>Left click to run the selected function."
+    offset-x: 0.0
+    offset-y: 0.35
+    offset-z: 2.45
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Submenu feature selected."
+
+  scroll_up:
+    type: TEXT
+    page: 1
+    text: "<yellow>Scroll Up"
+    scrollable: false
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: -0.65
+    offset-y: -0.25
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_up]"
+
+  scroll_down:
+    type: TEXT
+    page: 1
+    text: "<yellow>Scroll Down"
+    scrollable: false
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: 0.65
+    offset-y: -0.25
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_down]"
+
+  back:
+    type: TEXT
+    page: 1
+    text: "<red>Back"
+    scrollable: false
+    background-color: 0xAA2E0000
+    billboard: CENTER
+    offset-x: 0.0
+    offset-y: -0.65
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[back_menu]"

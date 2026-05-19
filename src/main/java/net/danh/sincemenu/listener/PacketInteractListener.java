@@ -6,6 +6,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.DiggingAction;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientAttack;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientHeldItemChange;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerDigging;
 import net.danh.sincemenu.manager.MenuManager;
@@ -25,6 +26,10 @@ public final class PacketInteractListener extends PacketListenerAbstract {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() == PacketType.Play.Client.PLAYER_DIGGING) {
             handleDigging(event);
+            return;
+        }
+        if (event.getPacketType() == PacketType.Play.Client.HELD_ITEM_CHANGE) {
+            handleHeldItemChange(event);
             return;
         }
         if (event.getPacketType() == PacketType.Play.Client.ATTACK) {
@@ -72,6 +77,18 @@ public final class PacketInteractListener extends PacketListenerAbstract {
         }
         event.setCancelled(true);
         menuManager.togglePinned(player);
+    }
+
+    private void handleHeldItemChange(@NotNull PacketReceiveEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+        if (menuManager.session(player).isEmpty()) {
+            return;
+        }
+        WrapperPlayClientHeldItemChange packet = new WrapperPlayClientHeldItemChange(event);
+        event.setCancelled(true);
+        menuManager.handleHotbarScroll(player, packet.getSlot());
     }
 
     private @NotNull MenuManager.MenuClickType clickType(@NotNull WrapperPlayClientInteractEntity packet) {

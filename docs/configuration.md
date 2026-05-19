@@ -31,8 +31,29 @@ Menus live in `plugins/SinceMenu/menus`.
 - `follow-angle-threshold`
   - Minimum viewer rotation, in degrees, before the menu moves to a new anchor.
 
+- `follow-rotation`
+  - When false, a standing player can look around without moving the open menu.
+
 - `pinned-return-distance`
   - If a pinned menu is left farther than this distance, it is re-anchored in front of the viewer while staying pinned.
+
+- `scroll-visible-items`
+  - Number of scrollable items rendered from the current page. Mouse wheel and scroll actions move this viewport.
+
+- `scroll-start-y`, `scroll-item-spacing`
+  - Vertical layout used for the visible scrollable item viewport.
+
+- `submenu-shift-x`
+  - Horizontal distance used to push older menu layers left when `[open_menu]` opens a submenu.
+
+- `hover-lore`, `hover-rate`, `hover-max-distance`
+  - Controls the packet text display that appears when the player looks at a rendered item with lore.
+
+- `lore-offset-x`, `lore-offset-y`, `lore-offset-z`, `lore-background-color`
+  - Position and background styling for hover lore text.
+
+- `item-scale`, `text-scale`, `lore-scale`
+  - Display entity scale values. Item displays should stay small because their vanilla default is one block wide.
 
 - `drop-key-toggle-pin`
   - Press the drop key once to pin the menu. Press it again to follow normally.
@@ -71,6 +92,15 @@ Menus live in `plugins/SinceMenu/menus`.
 
 - `hitbox-width`, `hitbox-height`
   - Optional per-item hitbox override.
+
+- `scale`
+  - Optional per-item display scale override.
+
+- `scrollable`
+  - Whether this item is part of the mouse-wheel viewport. Set controls like close/back buttons to `false`.
+
+- `lore`
+  - MiniMessage lines shown while the player looks at this item.
 
 - `view-requirements`
   - Requirements checked before rendering the item.

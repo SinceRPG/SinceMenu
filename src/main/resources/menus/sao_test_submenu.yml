@@ -1,0 +1,202 @@
+title: "SAO Test Submenu"
+commands: []
+permission: sincemenu.menu.sao_test_menu
+permission-message: "<red>You do not have permission to open the SAO test submenu."
+refresh-rate: 20
+follow-player: true
+follow-rate: 2
+follow-distance-threshold: 0.35
+follow-angle-threshold: 12.0
+follow-rotation: false
+pinned-return-distance: 10.0
+scroll-visible-items: 4
+scroll-start-y: 0.55
+scroll-item-spacing: 0.32
+submenu-shift-x: 1.75
+hover-lore: true
+hover-rate: 2
+hover-max-distance: 3.5
+lore-offset-x: 0.88
+lore-offset-y: 0.08
+lore-offset-z: 0.04
+lore-background-color: 0xCC001B2E
+item-scale: 0.22
+text-scale: 0.5
+lore-scale: 0.36
+drop-key-toggle-pin: true
+close-on-swap-hand: true
+hitbox-width: 0.78
+hitbox-height: 0.28
+pages: 1
+
+items:
+  frame_title:
+    type: TEXT
+    page: 1
+    text: "<light_purple>SUBMENU"
+    scrollable: false
+    background-color: 0xAA14002E
+    billboard: CENTER
+    hitbox-width: 0.05
+    hitbox-height: 0.05
+    offset-x: 0.0
+    offset-y: 0.95
+    offset-z: 2.5
+
+  equip:
+    type: ITEM
+    page: 1
+    icon: "minecraft:diamond_sword"
+    fallback-icon: "minecraft:diamond_sword"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<aqua>Equip"
+      - "<gray>Submenu item with hover lore."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <aqua>Equip selected."
+
+  inspect:
+    type: ITEM
+    page: 1
+    icon: "minecraft:spyglass"
+    fallback-icon: "minecraft:spyglass"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<yellow>Inspect"
+      - "<gray>Click and hover test."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <yellow>Inspect selected."
+
+  enhance:
+    type: ITEM
+    page: 1
+    icon: "minecraft:anvil"
+    fallback-icon: "minecraft:anvil"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<green>Enhance"
+      - "<gray>Scrollable submenu item."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Enhance selected."
+
+  trade:
+    type: ITEM
+    page: 1
+    icon: "minecraft:emerald"
+    fallback-icon: "minecraft:emerald"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<green>Trade"
+      - "<gray>Visible before scrolling."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <green>Trade selected."
+
+  discard:
+    type: ITEM
+    page: 1
+    icon: "minecraft:barrier"
+    fallback-icon: "minecraft:barrier"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<red>Discard"
+      - "<gray>Appears after scrolling down."
+    clicks:
+      LEFT:
+        actions:
+          - "[message] <red>Discard selected."
+
+  nested:
+    type: ITEM
+    page: 1
+    icon: "minecraft:ender_eye"
+    fallback-icon: "minecraft:ender_eye"
+    offset-x: 0.0
+    offset-z: 2.42
+    lore:
+      - "<light_purple>Nested Submenu"
+      - "<gray>Opens another layer to test cascading."
+    clicks:
+      LEFT:
+        actions:
+          - "[open_menu] sao_test_submenu"
+
+  scroll_up:
+    type: TEXT
+    page: 1
+    text: "<aqua>Up"
+    scrollable: false
+    background-color: 0x99001830
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: 0.48
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_up]"
+
+  scroll_down:
+    type: TEXT
+    page: 1
+    text: "<aqua>Down"
+    scrollable: false
+    background-color: 0x99001830
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: 0.1
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_down]"
+
+  back:
+    type: TEXT
+    page: 1
+    text: "<yellow>Back"
+    scrollable: false
+    background-color: 0x99705000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.28
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[back_menu]"
+
+  close:
+    type: TEXT
+    page: 1
+    text: "<red>Close"
+    scrollable: false
+    background-color: 0xAA2E0000
+    billboard: CENTER
+    offset-x: 0.95
+    offset-y: -0.66
+    offset-z: 2.35
+    hitbox-width: 0.45
+    hitbox-height: 0.26
+    clicks:
+      LEFT:
+        actions:
+          - "[close]"

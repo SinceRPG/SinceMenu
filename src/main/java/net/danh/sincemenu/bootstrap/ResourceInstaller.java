@@ -23,5 +23,17 @@ public final class ResourceInstaller {
         if (!advanced.exists()) {
             plugin.saveResource("menus/advanced_menu.yml", false);
         }
+        File submenu = new File(menus, "advanced_submenu.yml");
+        if (!submenu.exists()) {
+            plugin.saveResource("menus/advanced_submenu.yml", false);
+        }
+        File test = new File(menus, "sao_test_menu.yml");
+        if (!test.exists()) {
+            plugin.saveResource("menus/sao_test_menu.yml", false);
+        }
+        File testSubmenu = new File(menus, "sao_test_submenu.yml");
+        if (!testSubmenu.exists()) {
+            plugin.saveResource("menus/sao_test_submenu.yml", false);
+        }
     }
 }

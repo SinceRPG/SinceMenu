@@ -9,7 +9,19 @@ follow-player: true
 follow-rate: 2
 follow-distance-threshold: 0.35
 follow-angle-threshold: 12.0
+follow-rotation: false
 pinned-return-distance: 10.0
+scroll-visible-items: 6
+scroll-start-y: 0.75
+scroll-item-spacing: 0.35
+submenu-shift-x: 1.35
+hover-lore: true
+hover-rate: 2
+hover-max-distance: 3.5
+lore-offset-x: 0.95
+lore-offset-y: 0.1
+lore-offset-z: 0.05
+lore-background-color: 0xAA001B2E
 drop-key-toggle-pin: true
 close-on-swap-hand: true
 hitbox-width: 0.8
@@ -21,6 +33,7 @@ items:
     type: TEXT
     page: 1
     text: "<aqua>Welcome, %player_name%"
+    scrollable: false
     background-color: 0xAA001B2E
     billboard: CENTER
     offset-x: 0.0
@@ -38,6 +51,10 @@ items:
     page: 1
     icon: "mmoitems:SWORD:CUTLASS"
     fallback-icon: "minecraft:diamond_sword"
+    lore:
+      - "<gold>MMO Blade"
+      - "<gray>Left click to test requirements."
+      - "<gray>Right click to open a submenu."
     offset-x: -0.55
     offset-y: 0.42
     offset-z: 2.45
@@ -51,12 +68,13 @@ items:
               - "money:100"
       RIGHT:
         actions:
-          - "[next_page]"
+          - "[open_menu] advanced_submenu"
 
   vanilla_next:
     type: TEXT
     page: 1
     text: "<yellow>Next Page >"
+    scrollable: false
     background-color: 0x88000000
     billboard: CENTER
     offset-x: 0.75
@@ -73,10 +91,41 @@ items:
         actions:
           - "[message] <gray>This runs only when no specific click action is configured."
 
+  scroll_up:
+    type: TEXT
+    page: 1
+    text: "<aqua>Scroll Up"
+    scrollable: false
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: -0.75
+    offset-y: -0.2
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_up]"
+
+  scroll_down:
+    type: TEXT
+    page: 1
+    text: "<aqua>Scroll Down"
+    scrollable: false
+    background-color: 0x88000000
+    billboard: CENTER
+    offset-x: -0.75
+    offset-y: -0.55
+    offset-z: 2.35
+    clicks:
+      LEFT:
+        actions:
+          - "[scroll_down]"
+
   close:
     type: TEXT
     page: 1
     text: "<red>Close"
+    scrollable: false
     background-color: 0xAA2E0000
     billboard: CENTER
     offset-x: 0.0
@@ -92,6 +141,9 @@ items:
     page: 2
     icon: "itemsadder:iasurvival:ruby"
     fallback-icon: "minecraft:emerald"
+    lore:
+      - "<green>ItemsAdder Ruby"
+      - "<gray>Resolved from ItemsAdder when available."
     offset-x: 0.0
     offset-y: 0.55
     offset-z: 2.5
@@ -107,6 +159,9 @@ items:
     page: 2
     icon: "nexo:example_item"
     fallback-icon: "minecraft:amethyst_shard"
+    lore:
+      - "<aqua>Nexo Item"
+      - "<gray>Falls back safely if Nexo is missing."
     offset-x: 0.55
     offset-y: 0.55
     offset-z: 2.5
@@ -120,6 +175,9 @@ items:
     page: 2
     icon: "mythiccrucible:my_crucible_itemid"
     fallback-icon: "minecraft:nether_star"
+    lore:
+      - "<light_purple>MythicCrucible Item"
+      - "<gray>Falls back safely if MythicCrucible is missing."
     offset-x: -0.55
     offset-y: 0.55
     offset-z: 2.5
@@ -132,6 +190,7 @@ items:
     type: TEXT
     page: 2
     text: "<yellow>< Previous"
+    scrollable: false
     background-color: 0x88000000
     billboard: CENTER
     offset-x: -0.75
